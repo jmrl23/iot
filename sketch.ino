@@ -24,18 +24,23 @@ EspMQTTClient client(
   MQTT_PORT
 );
 
-Debouncer buzzerDebouncer(BUZZER_PIN, 50);
+Debouncer buttonDebouncer(BUTTON_PIN, 50);
 
 void setup() {
   Serial.begin(9600);
   pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  buttonDebouncer.subscribe(Debouncer::Edge::FALL, [](const int state) {
+    client.publish(serializeTopic("PRESS"), "");
+  });
 
   client.enableDebuggingMessages();
 }
 
 void loop() {
   client.loop();
+  buttonDebouncer.update();
 }
 
 void alarmSyncResponseCallback(const String &payload) {
@@ -50,16 +55,8 @@ void alarmSyncResponseCallback(const String &payload) {
 
 void onConnectionEstablished() {
   client.publish(serializeTopic("ALARM_SYNC"), "");
+  client.subscribe(serializeTopic("PRESS"), [] (const String &payload) {});
   client.subscribe(serializeTopic("ALARM_SYNC_RESPONSE"), alarmSyncResponseCallback);
-
-  buzzerDebouncer.subscribe(Debouncer::Edge::FALL, [](const int state) {
-    String message = state == HIGH ? "ON" : "OFF";
-
-    Serial.println(message);
-
-    client.publish(serializeTopic("ALARM_CHANGE"), message);
-    client.publish(serializeTopic("ALARM_SYNC"), "");
-  });
 }
 
 String serializeTopic(const String topic) {
