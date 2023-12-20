@@ -44,11 +44,11 @@ void loop() {
 }
 
 void iSyncCallback(const String &payload) {
-  if (payload.equals("ON")) {
+  if (payload.equals("1")) {
     digitalWrite(BUZZER_PIN, HIGH);
   } 
   
-  if (payload.equals("OFF")) {
+  if (payload.equals("0")) {
     digitalWrite(BUZZER_PIN, LOW);
   }
 }
