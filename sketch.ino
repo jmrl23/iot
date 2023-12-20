@@ -32,7 +32,7 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);
 
   buttonDebouncer.subscribe(Debouncer::Edge::FALL, [](const int state) {
-    client.publish(serializeTopic("PRESS"), "");
+    client.publish(serializeTopic("I_PRESS"), "");
   });
 
   client.enableDebuggingMessages();
@@ -43,7 +43,7 @@ void loop() {
   buttonDebouncer.update();
 }
 
-void alarmSyncResponseCallback(const String &payload) {
+void iSyncCallback(const String &payload) {
   if (payload.equals("ON")) {
     digitalWrite(BUZZER_PIN, HIGH);
   } 
@@ -54,9 +54,8 @@ void alarmSyncResponseCallback(const String &payload) {
 }
 
 void onConnectionEstablished() {
-  client.publish(serializeTopic("ALARM_SYNC"), "");
-  client.subscribe(serializeTopic("PRESS"), [] (const String &payload) {});
-  client.subscribe(serializeTopic("ALARM_SYNC_RESPONSE"), alarmSyncResponseCallback);
+  client.publish(serializeTopic("B_SYNC"), "");
+  client.subscribe(serializeTopic("I_SYNC"), alarmSyncResponseCallback);
 }
 
 String serializeTopic(const String topic) {
