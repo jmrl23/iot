@@ -55,7 +55,7 @@ void iSyncCallback(const String &payload) {
 
 void onConnectionEstablished() {
   client.publish(serializeTopic("B_SYNC"), "");
-  client.subscribe(serializeTopic("I_SYNC"), alarmSyncResponseCallback);
+  client.subscribe(serializeTopic("I_SYNC"), iSyncCallback);
 }
 
 String serializeTopic(const String topic) {
